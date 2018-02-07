@@ -1,4 +1,6 @@
+python-louvain
 networkx
 matplotlib
 pandas
 numpy
+community
