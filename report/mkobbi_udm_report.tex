@@ -1,0 +1,117 @@
+\documentclass[11pt,a4paper]{article}
+%\documentclass[11pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{microtype}
+\usepackage[dvips]{graphicx}
+\usepackage{lmodern}
+\usepackage{xcolor}
+%\usepackage{times}
+%\usepackage{graphicx}
+\usepackage{here}
+\usepackage{svg}
+\usepackage{amsfonts}
+\usepackage{minted}
+\usepackage{setspace}
+\usepackage{titlesec}
+\usepackage{authblk}
+%\usepackage[nolists,nomarkers,figuresonly]{endfloat}
+%\efloatseparator
+\usepackage[
+breaklinks=true,colorlinks=true,
+%linkcolor=blue,urlcolor=blue,citecolor=blue,% PDF VIEW
+linkcolor=black,urlcolor=black,citecolor=black,% PRINT
+bookmarks=true,bookmarksopenlevel=2]{hyperref}
+
+\usepackage{geometry}
+% PDF VIEW
+% \geometry{total={210mm,297mm},
+% left=25mm,right=25mm,%
+% bindingoffset=0mm, top=25mm,bottom=25mm}
+% PRINT
+\geometry{total={210mm,297mm},
+left=20mm,right=20mm,
+bindingoffset=10mm, top=25mm,bottom=25mm}
+
+\usepackage{titlesec}
+\usepackage{etoolbox}
+
+\makeatletter
+\patchcmd{\ttlh@hang}{\parindent\z@}{\parindent\z@\leavevmode}{}{}
+\patchcmd{\ttlh@hang}{\noindent}{}{}{}
+\makeatother
+
+\title{Softskills seminary: Relation Extraction with Matrix Factorization and Universal Schemas}
+\author{Mahmoud KOBBI}
+\date{\today}
+\affil{Paris-Saclay University, Paris, France}
+
+\usepackage[english]{babel}
+
+\addto\captionsenglish{% Replace "english" with the language you use
+  \renewcommand{\contentsname}%
+    {Summary}%
+}
+
+\begin{document}
+\maketitle
+%\setcounter{secnumdepth}{1}
+%\setcounter{tocdepth}{0}
+%\tableofcontents
+%noindent\rule{\linewidth}{0.5 pt}
+
+%\section*{Introduction}
+\section{Problematic}
+\addcontentsline{toc}{section}{Summary}
+The article presents a more efficient relation extraction model. In order to understand relation extraction, let's consider the following example: Let MusicDB be a database about music. One would expect an entry saying Slash \textit{lead-guitar-of} Guns n' Roses. With that said, a human mind would be able to tell also that Slash \textit{guitarist-of} Guns n' Roses, Slash \textit{solist-of} Guns n' Roses... \\
+
+However, these generalizing and valid entries might not exist in MusicDB. Hence the issue at question.
+
+\section{Attempts}
+
+Previous attempts at resolving the problem include manual annotation, machine learning approaches and natural language processing. The first technique is chronophagous and the second one need a pre-existing training set, which can be fastidious. Natural language processing efforts, led by the OpenIE project use the language itself as source of the schema, i.e. the set of relations. This allows not use a training set. However, their pattern discovery technique lacks generalization.
+
+\section{Generalization}
+
+Generalization is ability to detect the ongoing connection between different relations, like specified with the Slash example.
+Previous efforts also have been led to solve the problem. But the recurrent idea seems to be clustering of relations. An imprecise idea that would lead to say, for example:
+Slash \textit{member-of} Guns n' Roses $\rightarrow$ Slash \textit{singer-of} Guns n' Roses, which is not true.\footnote{Axl Rose the singer of Guns n' Roses}
+
+\section{Article approach}
+The new idea is to introduce \textit{universal schema}. This means to:
+\begin{itemize}
+\item Union all available schemas in one 
+\item Learn asymmetric implicature among relations in the union.
+\item Infer, with high probability, implications between relations
+\end{itemize} 
+The authors combine this with OpenIE-like technique of pattern discovery in order to add features to  the universal schema and imporove global performance.
+
+\section{General description of solution}
+The solution is basedf on externsions to probablistic models of matrix factorization and collaborative filtering.
+\subsection{On the matrix bit}
+The probabilistic knowledge base matrix is some $M \in \mathcal{M}_{n \times p}(\mathbb{R})$ where $n$ is the number of entity-entity pairs to consider ((Slash,Guns n' Roses) for instance); and $p$ is the number of relations (X \textit{lead-guitar-of} Y), collected either from the available datasets or from analyzing the actual documents at hand.\\
+
+$M$ will see its dimensions reduced, with technique like Princpal Component Analysis, and weights governing relations between its features.
+
+\subsection{On the collaborative filtering bit}
+Collaborative filtering is the main idea behind recommendation systems. In order to understand how would they be applied to the context, one could think of the system as Netflix recommanding new T.V. series or movies (i.e features) to users (i.e entity-entity pairs).
+
+\section{Model}
+For a relation $r$ and a tuple $t$, the objective is to calculate $p(y_{r,t}=1)$ where $y\_{r,t}$ is a boolean variable that tells whether tuple $t$ is a $r$.\\
+
+In order to do that, a series of exponential family models are introduced, all using a \textit{natural parameter} $\theta_{r,t}$, and a logistic function:
+
+\[p(y_{r,t}=1 \vert \theta_{r,t}) := \sigma(\theta_{r,t}) = \frac{1}{1+\exp(-\theta_{r,t})}\]
+
+Based on that, various models are proposed:
+\begin{itemize}
+\item Latent Feature model
+\item Neighborhood model
+\item Entity model
+\end{itemize}
+
+Each one of these models of parameters explores different aspects of the matrix $M$. What's more interesting is that they can be combined in multiple ways in order to focus on some aspects more than others.\\
+
+Also, these parameters are estimated using collaborative filtering technique. Hence the prior analogy with Netflix. In short, the system uses \textit{Bayesian Personalized Ranking} to give true facts higher scores than false ones, rather than  trying to predict a number between $0$ and $1$.
+
+\end{document}
