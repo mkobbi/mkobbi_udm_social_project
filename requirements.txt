@@ -1,3 +1,4 @@
+scipy
 python-louvain
 networkx
 matplotlib
